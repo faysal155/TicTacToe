@@ -1,116 +1,148 @@
-var click_checker = [0,0,0,0,0,0,0,0,0];
-var game_status = false;
-var player1_counter = 0;
-var player2_counter = 0;
+//JS code goes here
 
-var turn;
-var player_status = true;
-var game_status = true;
-function game_play(event)
-{
-  var check_player=event.target;
+//for checking blocks in the game that have been clicked once
+var clicked = [
+false, false, false,
+false, false, false,
+false, false, false
+];
 
-  if(click_checker[check_player.id]==0 && game_status == true)
-  {
-    event.target.innerHTML = turn? "O":"X";
-    if(player_status==true)
-    {
-      click_checker[check_player.id]=1;
-      player_status =false;
-      check_player.style.color="#2466FE";
-      document.getElementById('ticTable').className="ticTable1";
+//to keep the marks of the players;
+var mark = [
+  0,0,0,0,0,0,0,0,0
+]
+//the winning-combinations
+var endGame = [
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6]
+];
+
+//to set turns
+var turn = true;
+
+//to know when the game's over
+var gameOver = false;
+
+//win counts
+var p1wins=0;
+var p2wins=0;
+
+
+function play(event){
+    var element = event.target;
+
+    if ( clicked[element.id] === false && gameOver === false ) {
+
+    element.innerHTML = turn ? "X" : "O";
+    mark[element.id] = turn? 1 : 2;
+    clicked[element.id] = true;
+        turn = !turn;
+
+        console.log(clicked);
+        console.log(mark);
+
+
+        var result = checkEndGame();
+
+        if (result === 1) {
+      p1wins++;
+            console.log("Player 1 wins!");
+      document.getElementById('pi').innerHTML = p1wins;
+      document.getElementById('pone').innerHTML = p1wins;
+            document.getElementById('gstatus').innerHTML = "Player 1 wins!";
+            gameOver = true;
+      setTimeout(newGame, 2*1000);
+        }
+        if (result === 2) {
+      p2wins++;
+            console.log("Player 2 wins!");
+      document.getElementById('pii').innerHTML = p2wins;
+      document.getElementById('ptwo').innerHTML = p2wins;
+            document.getElementById('gstatus').innerHTML = "Player 2 wins!";
+            gameOver = true;
+      setTimeout(newGame, 2*1000);
+        }
+        if (result === 0) {
+            console.log("Tie");
+            document.getElementById('gstatus').innerHTML = "It's a Tie!";
+            gameOver = true;
+      setTimeout(newGame, 2*1000);
+        }
+        if (result === false) {
+            document.getElementById('gstatus').innerHTML = "Game in Progress";
+            console.log("Continue game");
+        }
     }
-    else if(player_status == false){
-      click_checker[check_player.id]=2;
-      player_status =true;
-      check_player.style.color="#4937BC";
-      document.getElementById('ticTable').className="ticTable";
-    }
-    turn = !turn;
-  }
-
-  else if(game_status == false)
-  {
-    alert("The Game is Finished Either Press Reset to Start a New Game or Leave The Page");
-  }
-  else if(click_checker[check_player]!==0) {
-    alert("This is a Wrong Move. Put your X or O in another cell");
-  }
-  var game_win_checker = game_win_logic();
-  if(game_win_checker==1 && game_status ==true)
-  {
-    document.getElementById('game_status_html').innerHTML = "Player 1 Win";
-    document.getElementById('game_status_html').style.color = "#FF0000";
-    game_status = false;
-    document.getElementById('Player_win_counter').innerHTML = player1_counter+1;
-    player1_counter+=1;
-    document.getElementById('Player_win_counter4').innerHTML = player1_counter;
-  }
-  else if(game_win_checker==2 && game_status ==true)
-  {
-    document.getElementById('game_status_html').innerHTML = "Player 2 Win";
-    document.getElementById('game_status_html').style.color = "#FF0000";
-    game_status = false;
-    document.getElementById('Player_win_counter3').innerHTML = player2_counter+1;
-    player2_counter+=1;
-    document.getElementById('Player_win_counter2').innerHTML = player2_counter;
-    turn = !turn;
-  }
-  else if(game_win_checker==3 && game_status ==true)
-  {
-    document.getElementById('game_status_html').innerHTML = "Great Game but it's a tie";
-    document.getElementById('game_status_html').style.color = "#FF0000";
-    game_status = false;
-  }
 }
 
-function game_win_logic()
-{
-  if((click_checker[0]==1 && click_checker[1]==1&&click_checker[2]==1)||
-   (click_checker[3]==1&&click_checker[4]==1&&click_checker[5]==1)||
-   (click_checker[6]==1&&click_checker[7]==1&&click_checker[8]==1)||
-   (click_checker[2]==1&&click_checker[4]==1&&click_checker[6]==1)||
-   (click_checker[0]==1&&click_checker[4]==1&&click_checker[8]==1)||
-   (click_checker[0]==1&&click_checker[3]==1&&click_checker[6]==1)||
-   (click_checker[2]==1&&click_checker[5]==1&&click_checker[8]==1)||
-   (click_checker[1]==1&&click_checker[4]==1&&click_checker[7]==1))
-     return 1;
+function checkEndGame() {
+    for (var i = 0; i < endGame.length; i++) {
+        if (
+            clicked[endGame[i][0]] !== false &&
+            clicked[endGame[i][1]] !== false &&
+            clicked[endGame[i][2]] !== false
+        ) {
+            if ( mark[endGame[i][0]] === mark[endGame[i][1]] && mark[endGame[i][1]] === mark[endGame[i][2]] ) {
+                if ( mark[endGame[i][0]] === 1) {
+                    //player 1 wins
+                    return 1;
+                }
+                if ( mark[endGame[i][0]] === 2) {
+                    //player 2 wins
+                    return 2;
+                }
+            }
+        }
+    }
 
-  else if((click_checker[0]==2 && click_checker[1]==2&&click_checker[2]==2)||
-   (click_checker[3]==2&&click_checker[4]==2&&click_checker[5]==2)||
-   (click_checker[6]==2&&click_checker[7]==2&&click_checker[8]==2)||
-   (click_checker[2]==2&&click_checker[4]==2&&click_checker[6]==2)||
-   (click_checker[0]==2&&click_checker[4]==2&&click_checker[8]==2)||
-   (click_checker[0]==2&&click_checker[3]==2&&click_checker[6]==2)||
-   (click_checker[2]==2&&click_checker[5]==2&&click_checker[8]==2)||
-   (click_checker[1]==2&&click_checker[4]==2&&click_checker[7]==2))
-     return 2;
+    //check tie
+  var tie = true;
+    for (var i = 0; i < clicked.length; i++) {
+        if (clicked[i] === false) {
+      tie = false;
+      break;
+        }
+    }
 
-   else {
-     var temp = 0;
-     for(var i=0; i<click_checker.length;i++)
-     {
-       if(click_checker[i]!==0)
-        temp++;
-     }
-     if(temp==9)
-       return 3;
-   }
+    if (tie === true) {
+        return 0;
+    }
+//return to continue game
+    return false;
 }
 
-function resetbutton(event)
-{
-  for(var i=0; i<click_checker.length; i++)
-  {
-    click_checker[i] =0;
-    document.getElementById(i).innerHTML = '';
-  }
-  game_status = true;
-  player_status = true;
-  document.getElementById('game_status_html').innerHTML = "New Game";
-  document.getElementById('game_status_html').style.color = "white";
-  if(turn==!turn)
-    turn = turn;
-  else if(turn==turn)
-    turn = !turn;
+function restart (event){
+    for(var i = 0; i < clicked.length; i++){
+        if( clicked[i] !== false ) {
+            document.getElementById(i).innerHTML = '';
+            clicked[i] = false;
+      mark[i] = 0;
+        }
+    }
+    turn = true;
+    gameOver = false;
+  p1wins = 0;
+  p2wins = 0;
+  document.getElementById('pi').innerHTML = p1wins;
+  document.getElementById('pone').innerHTML = p1wins;
+  document.getElementById('pii').innerHTML = p2wins;
+  document.getElementById('ptwo').innerHTML = p2wins;
+    document.getElementById("gstatus").innerHTML = "New Game";
+}
+
+function newGame (event){
+    for(var i = 0; i < clicked.length; i++){
+        document.getElementById(i).innerHTML = '';
+        clicked[i] = false;
+    mark[i] = 0;
+    }
+    turn = true;
+    gameOver = false;
+    document.getElementById("gstatus").innerHTML = "New Game";
 }
